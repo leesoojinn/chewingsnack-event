@@ -149,16 +149,12 @@
   let currentRotation = 0;
 
   function drawWheel() {
+    const numSegments = prizes.length;
     const canvasSize = 300;
-    const scale = window.devicePixelRatio; // ✅ 화면 배율 감지
-    const canvas = document.createElement('canvas');
-    canvas.width = canvasSize * scale;
-    canvas.height = canvasSize * scale;
-    canvas.style.width = canvasSize + 'px';
-    canvas.style.height = canvasSize + 'px';
-    const ctx = canvas.getContext('2d');
-    ctx.scale(scale, scale); // ✅ 글씨와 그래픽 선명하게
     const center = canvasSize / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
 
     const ctx = canvas.getContext('2d');
     const anglePerSegment = (2 * Math.PI) / numSegments;
@@ -254,3 +250,5 @@
 
 </body>
 </html>
+
+여기서 어디를 고쳐야해?
