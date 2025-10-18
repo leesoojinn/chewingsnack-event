@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>💗츄잉스낵 이벤트 돌림판💗</title>
+  <style>
+    body {
+      font-family: 'Nanum Gothic', sans-serif;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 15px;
+      background: #fff6fa;
+      color: #704c3a;
+      text-align: center;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #f5a6c6;
+    }
+    label, input, button {
+      font-size: 1rem;
+    }
+    input[type=number] {
+      padding: 6px 8px;
+      width: 120px;
+      border: 1px solid #ffd6e5;
+      border-radius: 4px;
+      margin-right: 10px;
+      background: #fff;
+    }
+    button {
+      padding: 7px 14px;
+      background: #ffb6c1;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #ff9db5;
+    }
+    button:disabled {
+      background: #ffd2db;
+      cursor: not-allowed;
+    }
+    #wheelContainer {
+      margin: 20px auto;
+      position: relative;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      overflow: visible;
+      box-shadow: 0 0 15px #ffc0cb88;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #wheel {
+      width: 100%;
+      height: 100%;
+      transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+      transform-origin: 50% 50%;
+    }
+    #spinPointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 30px solid #f9a8c0;
+      z-index: 10;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+      user-select: none;
+      pointer-events: none;
+    }
+    #resultPanel {
+      margin: 20px auto;
+      background: #fff0f5;
+      padding: 10px;
+      border-radius: 8px;
+      width: 90%;
+      box-shadow: inset 0 0 6px #ffc0cb77;
+      color: #8c5b6e;
+    }
+    #history {
+      margin-top: 10px;
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: #b5677d;
+    }
+    #tierInfo {
+      margin-top: 8px;
+      color: #f5a6c6;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h2>💗츄잉스낵 이벤트 돌림판💗</h2>
+
+<div>
+  <label for="purchaseAmount">구매금액(원): </label>
+  <input type="number" id="purchaseAmount" placeholder="예: 45000" min="0" />
+  <button id="applyAmount">적용</button>
+  <div id="tierInfo"></div>
+</div>
+
+<div id="wheelContainer">
+  <div id="wheel"></div>
+  <div id="spinPointer"></div>
+</div>
+
+<button id="spinBtn" disabled>회전판 돌리기</button>
+
+<div id="resultPanel">
+  <div><strong>마지막 당첨 결과: </strong><span id="lastResult">-</span></div>
+  <div><strong>남은 횟수: </strong><span id="spinsLeft">0</span></div>
+  <div id="history"><strong>히스토리:</strong><br/></div>
+</div>
+
+<script>
+  const prizes = [
+    "+50g 오트밀강정", "+100g 누가크래커", "+150g 바삭파칩",
+    "+200g 오트리얼칩", "+50g 동그리 젤리", "+0g 고구마칩",
+    "+0g 고구마말랭이", "+100g 뿔마칩"
+  ];
+
+  const wheel = document.getElementById('wheel');
+  const spinBtn = document.getElementById('spinBtn');
+  const lastResultSpan = document.getElementById('lastResult');
+  const spinsLeftSpan = document.getElementById('spinsLeft');
+  const historyDiv = document.getElementById('history');
+  const tierInfoDiv = document.getElementById('tierInfo');
+  const purchaseAmountInput = document.getElementById('purchaseAmount');
+  const applyAmountBtn = document.getElementById('applyAmount');
+
+  let spinsLeft = 0;
+  let currentRotation = 0;
+
+  function drawWheel() {
+    const numSegments = prizes.length;
+    const canvasSize = 300;
+    const center = canvasSize / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+
+    const ctx = canvas.getContext('2d');
+    const anglePerSegment = (2 * Math.PI) / numSegments;
+    const colors = ['#ffe3ec','#ffd8ef','#ffd1dc','#ffe4f0','#ffd9e8','#ffe8f3','#ffccda','#ffd6ec'];
+
+    for(let i=0; i<numSegments; i++){
+      ctx.beginPath();
+      ctx.moveTo(center, center);
+      ctx.arc(center, center, center - 2, i*anglePerSegment, (i+1)*anglePerSegment);
+      ctx.closePath();
+
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fill();
+
+      ctx.save();
+      ctx.translate(center, center);
+      ctx.rotate(anglePerSegment * i + anglePerSegment / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#6b3e3e";
+      ctx.font = "bold 16px Nanum Gothic, sans-serif";
+      ctx.fillText(prizes[i], center - 12, 6);
+      ctx.restore();
+    }
+    wheel.innerHTML = '';
+    wheel.appendChild(canvas);
+  }
+
+  function degreeToSegment(degree) {
+    const adjustedDegree = (degree + 90) % 360;
+    const segmentAngle = 360 / prizes.length;
+    const index = Math.floor(adjustedDegree / segmentAngle);
+    return (prizes.length - 1 - index);
+  }
+
+  function spinWheel() {
+    if(spinsLeft <= 0) {
+      alert("더 이상 돌릴 수 있는 횟수가 없습니다!");
+      return;
+    }
+    spinBtn.disabled = true;
+
+    const extraRotation = 360 * (5 + Math.random() * 3);
+    currentRotation += extraRotation;
+
+    wheel.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
+    wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+    setTimeout(() => {
+      spinBtn.disabled = false;
+      spinsLeft--;
+      spinsLeftSpan.textContent = spinsLeft;
+
+      const normDegree = currentRotation % 360;
+      const prizeIndex = degreeToSegment(normDegree);
+      const result = prizes[prizeIndex];
+      lastResultSpan.textContent = result;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      const newRecord = document.createElement('div');
+      newRecord.textContent = `${timeStr} - ${result}`;
+      historyDiv.appendChild(newRecord);
+    }, 4000);
+  }
+
+  function determineSpins(amount) {
+    if(amount >= 90000) return 3;
+    if(amount >= 50000) return 2;
+    if(amount >= 30000) return 1;
+    return 0;
+  }
+
+  applyAmountBtn.addEventListener('click', () => {
+    const amount = Number(purchaseAmountInput.value);
+    spinsLeft = determineSpins(amount);
+    spinsLeftSpan.textContent = spinsLeft;
+
+    if(spinsLeft > 0){
+      tierInfoDiv.textContent = `구매금액 ${amount.toLocaleString()}원 - ${spinsLeft}회 뽑기 기회가 주어집니다!`;
+      spinBtn.disabled = false;
+    }
+    else{
+      tierInfoDiv.textContent = `뽑기 참여 조건(3만원 이상)을 충족하지 못했습니다.`;
+      spinBtn.disabled = true;
+    }
+    lastResultSpan.textContent = '-';
+    historyDiv.innerHTML = '<strong>히스토리:</strong><br/>';
+  });
+
+  spinBtn.addEventListener('click', spinWheel);
+  drawWheel();
+</script>
+
+</body>
+</html>
