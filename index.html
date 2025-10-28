@@ -113,7 +113,7 @@
 
 <div>
   <label for="purchaseAmount">구매금액(원): </label>
-  <input type="number" id="purchaseAmount" placeholder="예: 45000" min="0" />
+  <input type="number" id="purchaseAmount" placeholder="예: 45000(배송비 제외)" min="0" />
   <button id="applyAmount">적용</button>
   <div id="tierInfo"></div>
 </div>
@@ -133,10 +133,10 @@
 
 <script>
   const prizes = [
-    "아메리카노", "초코볼", "바나나우유",
-    "신라면", "페브시콜라", "젤리", "포카칩",
-    "뿌링클", "츄잉젤리", "유기농쿠키", "초코쿠키",
-    "감자칩", "초코크런치", "비스킷", "츄잉스낵"
+    "누가크래커", "고구마말랭이", "고구마칩",
+    "고구마스틱", "구운참마깨스틱", "페스츄리 오징어", "오트밀강정",
+    "랜덤 젤리", "바삭파칩", "랜덤 뿔마칩", "오트리얼칩",
+    "랜덤 젤리", "랜덤 뿔마칩", "오트리얼칩", "랜덤젤리"
   ];
 
   const wheel = document.getElementById('wheel');
@@ -267,7 +267,8 @@
   }
 
   function determineSpins(amount) {
-    if (amount >= 90000) return 3;
+    if (amount >= 100000) return 5;
+    if (amount >= 70000) return 3;
     if (amount >= 50000) return 2;
     if (amount >= 30000) return 1;
     return 0;
