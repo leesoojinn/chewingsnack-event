@@ -151,7 +151,7 @@
 <script>
   const prizes = [
     "고구마칩 토핑용", "오트리얼칩", "바삭파칩",
-    "랜덤 젤리(200g)", "구운참마깨스틱", "페스츄리 오징어", "오트밀강정",
+    "랜덤 젤리(200g)", "구운참마깨스틱", "페스츄리 오징어(60g)", "오트밀강정",
     "랜덤 젤리(200g)", "바삭파칩", "랜덤 뿔마칩", "고구마칩 토핑용",
     "랜덤 젤리(200g)", "랜덤 뿔마칩", "오트리얼칩", "랜덤젤리(200g)"
   ];
@@ -305,7 +305,8 @@
   }
 
   function determineSpins(amount) {
-    if (amount >= 100000) return 5;
+    if (amount >= 120000) return 5;
+    if (amount >= 90000) return 4;
     if (amount >= 70000) return 3;
     if (amount >= 50000) return 2;
     if (amount >= 30000) return 1;
