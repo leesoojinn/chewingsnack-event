@@ -3,63 +3,113 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8" />
-  <title>💗츄잉스낵 이벤트 돌림판💗</title>
+  <title>💜츄잉스낵 이벤트 돌림판💜</title>
   <style>
     body {
       font-family: 'Nanum Gothic', sans-serif;
-      max-width: 480px;
+      max-width: 600px;
       margin: 0 auto;
       padding: 15px;
-      background: #fff6fa;
-      color: #704c3a;
+      background: #fdf6ff;
+      color: #4b2a7b;
       text-align: center;
     }
-    h2 { text-align: center; margin-bottom: 25px; color: #f5a6c6; }
-    label, input, button { font-size: 1rem; }
-    input[type=number]{
-      padding: 6px 8px; width: 120px; border: 1px solid #ffd6e5;
-      border-radius: 4px; margin-right: 10px; background: #fff;
+    h2 {
+      margin-bottom: 25px;
+      color: #7d4cc2;
     }
-    button{
-      padding: 7px 14px; background: #ffb6c1; border: none; border-radius: 6px;
-      color: white; cursor: pointer; font-weight: bold; transition: background 0.3s ease;
+    label, input, button {
+      font-size: 1rem;
     }
-    button:hover:not(:disabled){ background:#ff9db5; }
-    button:disabled{ background:#ffd2db; cursor:not-allowed; }
+    input[type=number] {
+      padding: 6px 8px;
+      width: 140px;
+      border: 1px solid #d7b9ff;
+      border-radius: 4px;
+      margin-right: 10px;
+      background: #fff;
+    }
+    button {
+      padding: 8px 16px;
+      background: #8e5ed6;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #6e3dc0;
+    }
+    button:disabled {
+      background: #c7a8ee;
+      cursor: not-allowed;
+    }
 
-    #wheelContainer{
-      margin: 20px auto; position: relative; width: 300px; height: 300px;
-      border-radius: 50%; overflow: visible; user-select: none;
-      display:flex; justify-content:center; align-items:center;
-      /* 바깥쪽 은은한 그림자 */
-      box-shadow: 0 0 18px rgba(131, 76, 199, .35);
-      background: transparent;
+    #wheelContainer {
+      margin: 20px auto;
+      position: relative;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    #wheel{
-      width: 100%; height: 100%;
+
+    #wheel {
+      width: 100%;
+      height: 100%;
       transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
       transform-origin: 50% 50%;
     }
-    /* 포인터를 보라색으로 변경 */
-    #spinPointer{
-      position:absolute; top:-12px; left:50%; transform:translateX(-50%);
-      width:0; height:0; border-left:20px solid transparent; border-right:20px solid transparent;
-      border-top:30px solid #6d33a8; /* 진보라 */
-      z-index:10; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
-      user-select:none; pointer-events:none;
+
+    #spinPointer {
+      position: absolute;
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 60px solid #6d33a8; /* 길고 얇은 진보라색 포인터 */
+      z-index: 10;
+      filter: drop-shadow(0 3px 3px rgba(0,0,0,0.2));
+      user-select: none;
+      pointer-events: none;
     }
 
-    #resultPanel{
-      margin:20px auto; background:#fff0f5; padding:10px; border-radius:8px;
-      width:90%; box-shadow: inset 0 0 6px #ffc0cb77; color:#8c5b6e;
+    #resultPanel {
+      margin: 20px auto;
+      background: #faf3ff;
+      padding: 10px;
+      border-radius: 8px;
+      width: 90%;
+      box-shadow: inset 0 0 6px #d1b7ff77;
+      color: #4b2a7b;
     }
-    #history{ margin-top:10px; max-height:120px; overflow-y:auto; font-size:.9rem; line-height:1.4; color:#b5677d; }
-    #tierInfo{ margin-top:8px; color:#f5a6c6; font-weight:bold; }
+
+    #history {
+      margin-top: 10px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: #6a3e9e;
+    }
+
+    #tierInfo {
+      margin-top: 8px;
+      color: #7d4cc2;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-<h2>💗츄잉스낵 이벤트 돌림판💗</h2>
+<h2>💜츄잉스낵 이벤트 돌림판💜</h2>
 
 <div>
   <label for="purchaseAmount">구매금액(원): </label>
@@ -83,11 +133,10 @@
 
 <script>
   const prizes = [
-    "+0g 오트밀강정", "+0g 고구마 젤리", "+0g 바삭파칩",
-    "+0g 오트리얼칩", "+0g 동그리 젤리", "+0g 고구마칩",
-    "+0g 고구마말랭이", "+0g 뿔마칩", "+0g 큐빅 젤리",
-    "+0g 참마깨스틱", "+0g 호두품은대추", "+0g 모양 젤리",
-    "+0g 고구마스틱", "+0g 뿔마칩", "+0g 사각 젤리"
+    "아메리카노", "초코볼", "바나나우유",
+    "신라면", "페브시콜라", "젤리", "포카칩",
+    "뿌링클", "츄잉젤리", "유기농쿠키", "초코쿠키",
+    "감자칩", "초코크런치", "비스킷", "츄잉스낵"
   ];
 
   const wheel = document.getElementById('wheel');
@@ -103,111 +152,100 @@
   let currentRotation = 0;
 
   function drawWheel() {
-    const numSegments = prizes.length;
-    const size = 300;
+    const n = prizes.length;
+    const size = 420;
     const cx = size / 2;
-    const cy = size / 2;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    // ===== 디자인 색 =====
-    const deepPurple = '#5b2d91';   // 바깥 테두리(진보라)
-    const dotWhite   = '#ffffff';   // 외곽 흰 점
-    const wedgeA     = '#e9e0fb';   // 연보라 웨지 A
-    const wedgeB     = '#efe7ff';   // 연보라 웨지 B
-    const ringLight  = '#a879ff';   // 안쪽 라이트 보라
-    const textPurple = '#5b2d91';   // 텍스트 보라
+    const R_outer = cx - 2;
+    const R_wedge = R_outer - 28;
+    const dotR = 7;
+    const dotCount = 28;
 
-    const R_outer = cx - 2;         // 전체 반지름
-    const ringWidth = 26;           // 외곽 보라 테두리 두께
-    const R_wedge = R_outer - ringWidth; // 웨지 시작 반지름
-    const R_dots = R_outer - ringWidth/2; // 흰 점 위치
-    const dotR = 6;                 // 흰 점 반지름
+    const purple = '#6d33a8';
+    const lightPurple = '#bda4f7';
+    const pale = '#e7d9ff';
+    const wedgeColors = ['#e9e0fb', '#efe7ff'];
+    const lineColor = '#8a5ed9';
 
-    // 1) 외곽 진보라 원(테두리)
+    // 외곽 원
     ctx.beginPath();
-    ctx.arc(cx, cy, R_outer, 0, Math.PI*2);
-    ctx.fillStyle = deepPurple;
+    ctx.arc(cx, cx, R_outer, 0, Math.PI * 2);
+    ctx.fillStyle = purple;
     ctx.fill();
 
-    // 2) 외곽 흰 점 장식
-    const dots = 24; // 점 개수
-    for(let i=0;i<dots;i++){
-      const ang = (i / dots) * Math.PI*2;
-      const x = cx + Math.cos(ang) * R_dots;
-      const y = cy + Math.sin(ang) * R_dots;
+    // 흰 점 테두리
+    for (let i = 0; i < dotCount; i++) {
+      const ang = (i / dotCount) * Math.PI * 2;
+      const x = cx + Math.cos(ang) * (R_outer - 13);
+      const y = cx + Math.sin(ang) * (R_outer - 13);
       ctx.beginPath();
-      ctx.arc(x, y, dotR, 0, Math.PI*2);
-      ctx.fillStyle = dotWhite;
+      ctx.arc(x, y, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
       ctx.fill();
     }
 
-    // 3) 안쪽 보라 링(테두리 안쪽 밝은 보라)
-    ctx.beginPath();
-    ctx.arc(cx, cy, R_wedge + 10, 0, Math.PI*2);
-    ctx.fillStyle = ringLight;
-    ctx.fill();
-
-    // 4) 웨지(연보라 두 톤 번갈아)
-    const anglePer = (2 * Math.PI) / numSegments;
-    for(let i=0;i<numSegments;i++){
+    const anglePer = (2 * Math.PI) / n;
+    for (let i = 0; i < n; i++) {
       const a0 = i * anglePer;
-      const a1 = (i+1) * anglePer;
+      const a1 = (i + 1) * anglePer;
       ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, R_wedge, a0, a1);
+      ctx.moveTo(cx, cx);
+      ctx.arc(cx, cx, R_wedge, a0, a1);
       ctx.closePath();
-      ctx.fillStyle = (i % 2 === 0) ? wedgeA : wedgeB;
+      ctx.fillStyle = wedgeColors[i % 2];
       ctx.fill();
+
+      // 구분선
+      ctx.beginPath();
+      ctx.moveTo(cx, cx);
+      ctx.arc(cx, cx, R_wedge, a0, a0);
+      ctx.lineTo(cx, cx);
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
       // 글자
       ctx.save();
-      ctx.translate(cx, cy);
-      const mid = (a0 + a1)/2;
-      ctx.rotate(mid);
+      ctx.translate(cx, cx);
+      ctx.rotate(a0 + anglePer / 2);
       ctx.textAlign = 'right';
-      ctx.fillStyle = textPurple;
-      ctx.font = 'bold 16px Nanum Gothic, sans-serif';
-      // 길면 잘라서 표시
-      let t = prizes[i];
-      while(ctx.measureText(t).width > (R_wedge-18)*0.9 && t.length>2){ t = t.slice(0,-1); }
-      ctx.fillText(t, R_wedge - 12, 6);
+      ctx.fillStyle = '#4b2a7b';
+      ctx.font = 'bold 18px Nanum Gothic';
+      ctx.fillText(prizes[i], R_wedge - 12, 8);
       ctx.restore();
     }
 
-    // 5) 중앙 링/원 (사진처럼 이중 원)
-    // 연한 보라 안쪽 원
+    // 중앙 링
     ctx.beginPath();
-    ctx.arc(cx, cy, 56, 0, Math.PI*2);
-    ctx.fillStyle = '#dccbf9';
-    ctx.fill();
-    // 더 밝은 보라 중심 원
-    ctx.beginPath();
-    ctx.arc(cx, cy, 40, 0, Math.PI*2);
-    ctx.fillStyle = '#f1eaff';
+    ctx.arc(cx, cx, 70, 0, Math.PI * 2);
+    ctx.fillStyle = lightPurple;
     ctx.fill();
 
-    // 캔버스 렌더
+    ctx.beginPath();
+    ctx.arc(cx, cx, 50, 0, Math.PI * 2);
+    ctx.fillStyle = pale;
+    ctx.fill();
+
     wheel.innerHTML = '';
     wheel.appendChild(canvas);
   }
 
   function degreeToSegment(degree) {
-    const adjustedDegree = (degree + 90) % 360;       // 위쪽 포인터 기준
-    const segmentAngle = 360 / prizes.length;
-    const index = Math.floor(adjustedDegree / segmentAngle);
-    return (prizes.length - 1 - index);
+    const adjusted = (degree + 90) % 360;
+    const anglePer = 360 / prizes.length;
+    return (prizes.length - 1 - Math.floor(adjusted / anglePer));
   }
 
   function spinWheel() {
-    if(spinsLeft <= 0) { alert("더 이상 돌릴 수 있는 횟수가 없습니다!"); return; }
+    if (spinsLeft <= 0) return alert("더 이상 돌릴 수 없습니다!");
     spinBtn.disabled = true;
 
-    const extraRotation = 360 * (5 + Math.random() * 3);
-    currentRotation += extraRotation;
-
+    const extra = 360 * (5 + Math.random() * 3);
+    currentRotation += extra;
     wheel.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
     wheel.style.transform = `rotate(${currentRotation}deg)`;
 
@@ -216,23 +254,22 @@
       spinsLeft--;
       spinsLeftSpan.textContent = spinsLeft;
 
-      const normDegree = currentRotation % 360;
-      const prizeIndex = degreeToSegment(normDegree);
+      const degree = currentRotation % 360;
+      const prizeIndex = degreeToSegment(degree);
       const result = prizes[prizeIndex];
       lastResultSpan.textContent = result;
 
       const now = new Date();
-      const timeStr = now.toLocaleTimeString();
-      const newRecord = document.createElement('div');
-      newRecord.textContent = `${timeStr} - ${result}`;
-      historyDiv.appendChild(newRecord);
+      const record = document.createElement('div');
+      record.textContent = `${now.toLocaleTimeString()} - ${result}`;
+      historyDiv.appendChild(record);
     }, 4000);
   }
 
   function determineSpins(amount) {
-    if(amount >= 90000) return 3;
-    if(amount >= 50000) return 2;
-    if(amount >= 30000) return 1;
+    if (amount >= 90000) return 3;
+    if (amount >= 50000) return 2;
+    if (amount >= 30000) return 1;
     return 0;
   }
 
@@ -240,14 +277,11 @@
     const amount = Number(purchaseAmountInput.value);
     spinsLeft = determineSpins(amount);
     spinsLeftSpan.textContent = spinsLeft;
-
-    if(spinsLeft > 0){
-      tierInfoDiv.textContent = `구매금액 ${amount.toLocaleString()}원 - ${spinsLeft}회 뽑기 기회가 주어집니다!`;
-      spinBtn.disabled = false;
-    } else {
-      tierInfoDiv.textContent = `뽑기 참여 조건(3만원 이상)을 충족하지 못했습니다.`;
-      spinBtn.disabled = true;
-    }
+    tierInfoDiv.textContent =
+      spinsLeft > 0
+        ? `구매금액 ${amount.toLocaleString()}원 - ${spinsLeft}회 기회`
+        : `3만원 이상 구매시 참여 가능합니다.`;
+    spinBtn.disabled = spinsLeft <= 0;
     lastResultSpan.textContent = '-';
     historyDiv.innerHTML = '<strong>히스토리:</strong><br/>';
   });
