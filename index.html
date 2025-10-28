@@ -3,21 +3,21 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8" />
-  <title>💗츄잉스낵 이벤트 돌림판💗</title>
+  <title>💎츄잉스낵 프리미엄 이벤트 돌림판💎</title>
   <style>
     body {
       font-family: 'Nanum Gothic', sans-serif;
       max-width: 480px;
       margin: 0 auto;
       padding: 15px;
-      background: #fff6fa;
-      color: #704c3a;
+      background: #fdfaf3; /* 아이보리톤 배경 */
+      color: #5b4636; /* 브라운 텍스트 */
       text-align: center;
     }
     h2 {
       text-align: center;
       margin-bottom: 25px;
-      color: #f5a6c6;
+      color: #b57f50; /* 로즈골드 타이틀 */
     }
     label, input, button {
       font-size: 1rem;
@@ -25,14 +25,14 @@
     input[type=number] {
       padding: 6px 8px;
       width: 120px;
-      border: 1px solid #ffd6e5;
+      border: 1px solid #d6c2a5;
       border-radius: 4px;
       margin-right: 10px;
       background: #fff;
     }
     button {
       padding: 7px 14px;
-      background: #ffb6c1;
+      background: #b57f50; /* 로즈골드 버튼 */
       border: none;
       border-radius: 6px;
       color: white;
@@ -41,10 +41,10 @@
       transition: background 0.3s ease;
     }
     button:hover:not(:disabled) {
-      background: #ff9db5;
+      background: #a06b42;
     }
     button:disabled {
-      background: #ffd2db;
+      background: #d2b79b;
       cursor: not-allowed;
     }
     #wheelContainer {
@@ -54,11 +54,12 @@
       height: 300px;
       border-radius: 50%;
       overflow: visible;
-      box-shadow: 0 0 15px #ffc0cb88;
+      box-shadow: 0 0 15px #c0a97a66;
       user-select: none;
       display: flex;
       justify-content: center;
       align-items: center;
+      background: radial-gradient(circle at center, #fffaf0 0%, #f7efe1 100%);
     }
     #wheel {
       width: 100%;
@@ -75,7 +76,7 @@
       height: 0;
       border-left: 20px solid transparent;
       border-right: 20px solid transparent;
-      border-top: 30px solid #f9a8c0;
+      border-top: 30px solid #b8860b; /* 골드색 포인터 */
       z-index: 10;
       filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
       user-select: none;
@@ -83,12 +84,12 @@
     }
     #resultPanel {
       margin: 20px auto;
-      background: #fff0f5;
+      background: #fff9ef;
       padding: 10px;
       border-radius: 8px;
       width: 90%;
-      box-shadow: inset 0 0 6px #ffc0cb77;
-      color: #8c5b6e;
+      box-shadow: inset 0 0 6px #d1b97a66;
+      color: #5b4636;
     }
     #history {
       margin-top: 10px;
@@ -96,18 +97,18 @@
       overflow-y: auto;
       font-size: 0.9rem;
       line-height: 1.4;
-      color: #b5677d;
+      color: #7a6a54;
     }
     #tierInfo {
       margin-top: 8px;
-      color: #f5a6c6;
+      color: #b57f50;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<h2>💗츄잉스낵 이벤트 돌림판💗</h2>
+<h2>💎츄잉스낵 프리미엄 이벤트 돌림판💎</h2>
 
 <div>
   <label for="purchaseAmount">구매금액(원): </label>
@@ -160,12 +161,17 @@
 
     const ctx = canvas.getContext('2d');
     const anglePerSegment = (2 * Math.PI) / numSegments;
-    const colors = ['#ff4b4b','#ffd93d','#4cd964','#34a1eb','#ff7f50','#a84bff','#00c2cb','#ffb347'];
 
-    for(let i=0; i<numSegments; i++){
+    // 고급스러운 골드 & 네이비 톤
+    const colors = [
+      '#d4af37', '#c0a97a', '#a67c52', '#8b6f47',
+      '#2c3e50', '#34495e', '#b8860b', '#e0c097'
+    ];
+
+    for (let i = 0; i < numSegments; i++) {
       ctx.beginPath();
       ctx.moveTo(center, center);
-      ctx.arc(center, center, center - 2, i*anglePerSegment, (i+1)*anglePerSegment);
+      ctx.arc(center, center, center - 2, i * anglePerSegment, (i + 1) * anglePerSegment);
       ctx.closePath();
 
       ctx.fillStyle = colors[i % colors.length];
@@ -175,7 +181,7 @@
       ctx.translate(center, center);
       ctx.rotate(anglePerSegment * i + anglePerSegment / 2);
       ctx.textAlign = "right";
-      ctx.fillStyle = "#6b3e3e";
+      ctx.fillStyle = "#fffdf5"; // 밝은 아이보리 글씨
       ctx.font = "bold 16px Nanum Gothic, sans-serif";
       ctx.fillText(prizes[i], center - 12, 6);
       ctx.restore();
@@ -192,7 +198,7 @@
   }
 
   function spinWheel() {
-    if(spinsLeft <= 0) {
+    if (spinsLeft <= 0) {
       alert("더 이상 돌릴 수 있는 횟수가 없습니다!");
       return;
     }
@@ -223,9 +229,9 @@
   }
 
   function determineSpins(amount) {
-    if(amount >= 90000) return 3;
-    if(amount >= 50000) return 2;
-    if(amount >= 30000) return 1;
+    if (amount >= 70000) return 3;
+    if (amount >= 50000) return 2;
+    if (amount >= 30000) return 1;
     return 0;
   }
 
@@ -234,11 +240,10 @@
     spinsLeft = determineSpins(amount);
     spinsLeftSpan.textContent = spinsLeft;
 
-    if(spinsLeft > 0){
+    if (spinsLeft > 0) {
       tierInfoDiv.textContent = `구매금액 ${amount.toLocaleString()}원 - ${spinsLeft}회 뽑기 기회가 주어집니다!`;
       spinBtn.disabled = false;
-    }
-    else{
+    } else {
       tierInfoDiv.textContent = `뽑기 참여 조건(3만원 이상)을 충족하지 못했습니다.`;
       spinBtn.disabled = true;
     }
