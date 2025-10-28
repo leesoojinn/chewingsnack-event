@@ -47,11 +47,13 @@
       cursor: not-allowed;
     }
 
+    /* ✅ 반응형: 휠 컨테이너를 화면 폭에 맞춰 자동 축소 */
     #wheelContainer {
       margin: 20px auto;
       position: relative;
-      width: 420px;
-      height: 420px;
+      width: 100%;
+      max-width: 420px;      /* 데스크톱 상한 */
+      aspect-ratio: 1 / 1;   /* 정사각형 유지 */
       border-radius: 50%;
       display: flex;
       justify-content: center;
@@ -67,7 +69,7 @@
 
     #spinPointer {
       position: absolute;
-      top: -10px;
+      top: -10px;     /* 필요시 모바일에서 미세 조정됨 */
       left: 50%;
       transform: translateX(-50%);
       width: 0;
@@ -104,6 +106,20 @@
       margin-top: 8px;
       color: #7d4cc2;
       font-weight: bold;
+    }
+
+    /* 📱 모바일 보조 조정(선택): 폰에서 살짝 더 작게 */
+    @media (max-width: 600px){
+      input[type=number]{ width: 42vw; font-size:.95rem; }
+      button{ padding: 8px 12px; font-size:.95rem; }
+      #resultPanel{ font-size:.95rem; }
+      /* 포인터도 화면에 비례해 살짝 축소 */
+      #spinPointer{
+        top: -8px;
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-top: 40px solid #6d33a8;
+      }
     }
   </style>
 </head>
@@ -147,29 +163,38 @@
   const tierInfoDiv = document.getElementById('tierInfo');
   const purchaseAmountInput = document.getElementById('purchaseAmount');
   const applyAmountBtn = document.getElementById('applyAmount');
+  const container = document.getElementById('wheelContainer');
+  const pointer = document.getElementById('spinPointer');
 
   let spinsLeft = 0;
   let currentRotation = 0;
 
-  function drawWheel() {
+  // ✅ 컨테이너 실제 크기에 맞춰 캔버스를 그리는 함수
+  function drawWheelResponsive() {
+    const rect = container.getBoundingClientRect();
+    const size = Math.round(Math.min(rect.width, rect.height)); // 정사각형
+    if (!size || size <= 0) return;
+
     const n = prizes.length;
-    const size = 420;
     const cx = size / 2;
+
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
 
-    const R_outer = cx - 2;
-    const R_wedge = R_outer - 28;
-    const dotR = 7;
-    const dotCount = 28;
+    // 비율 기반 파라미터 (화면에 따라 자동 스케일)
+    const R_outer   = cx - 2;
+    const ringWidth = Math.max(22, Math.round(size * 0.06));
+    const R_wedge   = R_outer - ringWidth;
+    const dotR      = Math.max(5, Math.round(size * 0.015));
+    const dotCount  = 28;
 
-    const purple = '#6d33a8';
-    const lightPurple = '#bda4f7';
-    const pale = '#e7d9ff';
-    const wedgeColors = ['#e9e0fb', '#efe7ff'];
-    const lineColor = '#8a5ed9';
+    const purple     = '#6d33a8';
+    const lightPurple= '#bda4f7';
+    const pale       = '#e7d9ff';
+    const wedgeColors= ['#e9e0fb', '#efe7ff'];
+    const lineColor  = '#8a5ed9';
 
     // 외곽 원
     ctx.beginPath();
@@ -180,18 +205,21 @@
     // 흰 점 테두리
     for (let i = 0; i < dotCount; i++) {
       const ang = (i / dotCount) * Math.PI * 2;
-      const x = cx + Math.cos(ang) * (R_outer - 13);
-      const y = cx + Math.sin(ang) * (R_outer - 13);
+      const x = cx + Math.cos(ang) * (R_outer - ringWidth/2);
+      const y = cx + Math.sin(ang) * (R_outer - ringWidth/2);
       ctx.beginPath();
       ctx.arc(x, y, dotR, 0, Math.PI * 2);
       ctx.fillStyle = '#fff';
       ctx.fill();
     }
 
+    // 섹터
     const anglePer = (2 * Math.PI) / n;
     for (let i = 0; i < n; i++) {
       const a0 = i * anglePer;
       const a1 = (i + 1) * anglePer;
+
+      // 웨지
       ctx.beginPath();
       ctx.moveTo(cx, cx);
       ctx.arc(cx, cx, R_wedge, a0, a1);
@@ -199,39 +227,48 @@
       ctx.fillStyle = wedgeColors[i % 2];
       ctx.fill();
 
-      // 구분선
+      // 구분선(선명)
       ctx.beginPath();
       ctx.moveTo(cx, cx);
-      ctx.arc(cx, cx, R_wedge, a0, a0);
-      ctx.lineTo(cx, cx);
+      ctx.lineTo(cx + Math.cos(a0) * R_wedge, cx + Math.sin(a0) * R_wedge);
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = Math.max(1.5, size * 0.004);
       ctx.stroke();
 
-      // 글자
+      // 라벨
       ctx.save();
       ctx.translate(cx, cx);
       ctx.rotate(a0 + anglePer / 2);
       ctx.textAlign = 'right';
       ctx.fillStyle = '#4b2a7b';
-      ctx.font = 'bold 18px Nanum Gothic';
-      ctx.fillText(prizes[i], R_wedge - 12, 8);
+      ctx.font = `bold ${Math.max(14, Math.round(size * 0.042))}px Nanum Gothic, sans-serif`;
+      let t = prizes[i];
+      while (ctx.measureText(t).width > (R_wedge - 16) * 0.95 && t.length > 2) t = t.slice(0, -1);
+      ctx.fillText(t, R_wedge - 12, 8);
       ctx.restore();
     }
 
     // 중앙 링
     ctx.beginPath();
-    ctx.arc(cx, cx, 70, 0, Math.PI * 2);
+    ctx.arc(cx, cx, Math.round(size * 0.17), 0, Math.PI * 2);
     ctx.fillStyle = lightPurple;
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(cx, cx, 50, 0, Math.PI * 2);
+    ctx.arc(cx, cx, Math.round(size * 0.12), 0, Math.PI * 2);
     ctx.fillStyle = pale;
     ctx.fill();
 
     wheel.innerHTML = '';
     wheel.appendChild(canvas);
+
+    // 🔺 포인터도 화면 비례로 자동 조정
+    const bl = Math.round(size * 0.04); // 좌우 두께
+    const bt = Math.round(size * 0.12); // 세모 높이
+    pointer.style.borderLeft  = `${bl}px solid transparent`;
+    pointer.style.borderRight = `${bl}px solid transparent`;
+    pointer.style.borderTop   = `${bt}px solid ${purple}`;
+    pointer.style.top         = `${-Math.round(size * 0.02)}px`;
   }
 
   function degreeToSegment(degree) {
@@ -288,7 +325,11 @@
   });
 
   spinBtn.addEventListener('click', spinWheel);
-  drawWheel();
+
+  // ✅ 최초 렌더 & 리사이즈 시 재그리기
+  window.addEventListener('resize', drawWheelResponsive);
+  // 일부 브라우저 초기 레이아웃 후 크기 계산을 위해 한 틱 뒤에 호출
+  requestAnimationFrame(drawWheelResponsive);
 </script>
 
 </body>
