@@ -151,8 +151,8 @@
   const prizes = [
     "고구마칩 토핑용", "오트리얼칩", "바삭파칩",
     "고구마스틱", "구운참마깨스틱", "페스츄리 오징어", "오트밀강정",
-    "랜덤 젤리", "바삭파칩", "랜덤 뿔마칩", "고구마칩 토핑용",
-    "랜덤 젤리", "랜덤 뿔마칩", "오트리얼칩", "랜덤젤리"
+    "랜덤 젤리(200g)", "바삭파칩", "랜덤 뿔마칩", "고구마칩 토핑용",
+    "랜덤 젤리(200g)", "랜덤 뿔마칩", "오트리얼칩", "랜덤젤리(200g)"
   ];
 
   const wheel = document.getElementById('wheel');
@@ -241,7 +241,7 @@
       ctx.rotate(a0 + anglePer / 2);
       ctx.textAlign = 'right';
       ctx.fillStyle = '#4b2a7b';
-      ctx.font = `bold ${Math.max(14, Math.round(size * 0.042))}px Nanum Gothic, sans-serif`;
+      ctx.font = `bold ${Math.max(12, Math.round(size * 0.035))}px Nanum Gothic, sans-serif`;
       let t = prizes[i];
       while (ctx.measureText(t).width > (R_wedge - 16) * 0.95 && t.length > 2) t = t.slice(0, -1);
       ctx.fillText(t, R_wedge - 12, 8);
