@@ -170,6 +170,69 @@
   let spinsLeft = 0;
   let currentRotation = 0;
 
+  /* =========================
+     [SOUND] 소리 관련 함수 추가
+     ========================= */
+  const AudioCtx = window.AudioContext || window.webkitAudioContext; // [SOUND]
+  let audioCtx;                                                     // [SOUND]
+  let tickTimer = null;                                             // [SOUND]
+  let tickIntervalMs = 120;                                         // [SOUND]
+
+  function ensureAudio(){                                           // [SOUND]
+    if(!audioCtx) audioCtx = new AudioCtx();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  // 회전 중 '틱' 소리
+  function playTick(){                                              // [SOUND]
+    ensureAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.06);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.07);
+  }
+  // 멈출 때 짧은 팡파레
+  function playChime(){                                             // [SOUND]
+    ensureAudio();
+    function note(freq, t0, dur=0.18){
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t0);
+      osc.stop(t0 + dur + 0.02);
+    }
+    const t = audioCtx.currentTime + 0.02;
+    note(523.25, t);          // C5
+    note(783.99, t + 0.18);   // G5
+    note(1046.5, t + 0.36);   // C6
+  }
+  // 회전 중 '틱틱틱' 반복 (점점 빨라짐)
+  function startTicking(){                                         // [SOUND]
+    ensureAudio();
+    stopTicking();
+    tickIntervalMs = 140; // 시작 속도
+    const runner = ()=>{
+      playTick();
+      tickIntervalMs = Math.max(40, tickIntervalMs - 4);
+      clearInterval(tickTimer);
+      tickTimer = setInterval(runner, tickIntervalMs);
+    };
+    tickTimer = setInterval(runner, tickIntervalMs);
+  }
+  function stopTicking(){                                          // [SOUND]
+    if(tickTimer){ clearInterval(tickTimer); tickTimer = null; }
+  }
+
   // ✅ 컨테이너 실제 크기에 맞춰 캔버스를 그리는 함수
   function drawWheelResponsive() {
     const rect = container.getBoundingClientRect();
@@ -282,6 +345,8 @@
     if (spinsLeft <= 0) return alert("더 이상 돌릴 수 없습니다!");
     spinBtn.disabled = true;
 
+    startTicking(); // [SOUND] 회전 시작 소리(틱틱틱) 시작
+
     const extra = 360 * (5 + Math.random() * 3);
     currentRotation += extra;
     wheel.style.transition = 'transform 4s cubic-bezier(0.33, 1, 0.68, 1)';
@@ -301,6 +366,9 @@
       const record = document.createElement('div');
       record.textContent = `${now.toLocaleTimeString()} - ${result}`;
       historyDiv.appendChild(record);
+
+      stopTicking(); // [SOUND] 회전 소리(틱틱틱) 정지
+      playChime();   // [SOUND] 멈출 때 효과음
     }, 4000);
   }
 
