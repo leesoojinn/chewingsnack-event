@@ -328,7 +328,7 @@ function playTick() {
       const usableWidth = R_wedge * 0.8;
       while (ctx.measureText(t).width > (R_wedge - 16) * 0.95 && t.length > 2) t = t.slice(0, -1);
 
-      const rLabel = R_wedge * 0.76;
+      const rLabel = R_wedge * 0.68;
       
       ctx.fillText(t, rLabel, -1);
       ctx.restore();
