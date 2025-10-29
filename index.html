@@ -423,6 +423,23 @@ function playTick() {
   window.addEventListener('resize', drawWheelResponsive);
   // 일부 브라우저 초기 레이아웃 후 크기 계산을 위해 한 틱 뒤에 호출
   requestAnimationFrame(drawWheelResponsive);
+
+  // ✅ 추가 ↓↓↓
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+if (isMobile) {
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      requestAnimationFrame(drawWheelResponsive);
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+      requestAnimationFrame(drawWheelResponsive);
+    });
+  }
+  window.addEventListener('orientationchange', () => {
+    setTimeout(drawWheelResponsive, 400);
+  });
+}
 </script>
 
 </body>
