@@ -211,25 +211,64 @@ function playTick() {
   osc.stop(t0 + rel + 0.02);
 }
 
-  // 멈출 때 짧은 팡파레
-  function playChime(){                                             // [SOUND]
+  // [SOUND🔥] 멈출 때 폭죽 효과음 (파일 없이 합성)
+  function playChime(){ // 이름은 유지, 내부를 폭죽음으로 변경
     ensureAudio();
-    function note(freq, t0, dur=0.18){
+
+    // 1) 메인 폭죽 "팡" (노이즈 + 밴드패스 + 짧은 엔벨로프)
+    const dur = 0.7;
+    const now = audioCtx.currentTime;
+
+    // 화이트 노이즈 버퍼 생성
+    const bufferSize = 44100 * dur;
+    const buffer = audioCtx.createBuffer(1, bufferSize, 44100);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      // 살짝 부드러운 노이즈
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.8));
+    }
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(2200, now); // 중심 주파수
+    bp.Q.value = 0.9;
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.6, now + 0.02); // 급상승
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur); // 잔향 소멸
+
+    noise.connect(bp).connect(g).connect(audioCtx.destination);
+    noise.start(now);
+    noise.stop(now + dur);
+
+    // 2) 스파클 "팅/팅" (반짝이는 파편 소리)
+    function sparkle(t0, freq){
       const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const gn  = audioCtx.createGain();
+      const hp  = audioCtx.createBiquadFilter();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, t0);
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.connect(gain).connect(audioCtx.destination);
+      hp.type = 'highpass';
+      hp.frequency.value = 1200;
+
+      gn.gain.setValueAtTime(0.0001, t0);
+      gn.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02);
+      gn.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.25);
+
+      osc.connect(hp).connect(gn).connect(audioCtx.destination);
       osc.start(t0);
-      osc.stop(t0 + dur + 0.02);
+      osc.stop(t0 + 0.28);
     }
-    const t = audioCtx.currentTime + 0.02;
-    note(523.25, t);          // C5
-    note(783.99, t + 0.18);   // G5
-    note(1046.5, t + 0.36);   // C6
+
+    // 살짝 랜덤으로 반짝임 추가
+    sparkle(now + 0.05, 1400 + Math.random()*300);
+    sparkle(now + 0.14, 1800 + Math.random()*400);
+    // (선택) 한 번 더
+    sparkle(now + 0.22, 2200 + Math.random()*500);
   }
   // 회전 중 '틱틱틱' 반복 (점점 빨라짐)
   function startTicking(){                                         // [SOUND]
