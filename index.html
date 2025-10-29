@@ -320,6 +320,7 @@ function playTick() {
       ctx.rotate(a0 + anglePer / 2);
       ctx.textAlign = 'right';
       ctx.fillStyle = '#4b2a7b';
+      ctx.textBaseline = 'middle'; // 돌림판 안 글자 가운데로 
       ctx.font = `bold ${Math.max(12, Math.round(size * 0.035))}px Nanum Gothic, sans-serif`;
       let t = prizes[i];
       while (ctx.measureText(t).width > (R_wedge - 16) * 0.95 && t.length > 2) t = t.slice(0, -1);
@@ -327,7 +328,7 @@ function playTick() {
       ctx.restore();
     }
 
-    // 중앙 링
+    /* 중앙 링 제거
     ctx.beginPath();
     ctx.arc(cx, cx, Math.round(size * 0.17), 0, Math.PI * 2);
     ctx.fillStyle = lightPurple;
@@ -337,6 +338,7 @@ function playTick() {
     ctx.arc(cx, cx, Math.round(size * 0.12), 0, Math.PI * 2);
     ctx.fillStyle = pale;
     ctx.fill();
+    */
 
     wheel.innerHTML = '';
     wheel.appendChild(canvas);
