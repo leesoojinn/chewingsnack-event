@@ -183,19 +183,34 @@
     if(audioCtx.state === 'suspended') audioCtx.resume();
   }
   // 회전 중 '틱' 소리
-  function playTick(){                                              // [SOUND]
-    ensureAudio();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.2, audioCtx.currentTime + 0.005);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.06);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.07);
-  }
+// 기존 playTick() 을 아래로 교체
+function playTick() {
+  ensureAudio();
+
+  const osc   = audioCtx.createOscillator();
+  const gain  = audioCtx.createGain();
+  const lpf   = audioCtx.createBiquadFilter();
+
+  osc.type = 'triangle';          // 부드러운 파형
+  osc.frequency.setValueAtTime(820, audioCtx.currentTime); // 1000 → 820Hz
+
+  lpf.type = 'lowpass';           // 고음 살짝 깎기
+  lpf.frequency.value = 1800;     // 컷오프(부드러움↑면 더 낮추세요: 1200~2000)
+  lpf.Q.value = 0.7;
+
+  const t0 = audioCtx.currentTime;
+  const atk = 0.012;              // Attack (0.005 → 0.012)
+  const rel = 0.14;               // Release (0.06 → 0.14)
+
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(0.16, t0 + atk);      // 피크 볼륨
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + rel);    // 부드럽게 줄이기
+
+  osc.connect(lpf).connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + rel + 0.02);
+}
+
   // 멈출 때 짧은 팡파레
   function playChime(){                                             // [SOUND]
     ensureAudio();
