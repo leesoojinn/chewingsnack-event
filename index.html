@@ -318,7 +318,7 @@ function playTick() {
       ctx.save();
       ctx.translate(cx, cx);
       ctx.rotate(a0 + anglePer / 2);
-      ctx.textAlign = 'right';
+      ctx.textAlign = 'center';
       ctx.fillStyle = '#4b2a7b';
       ctx.textBaseline = 'middle'; // 돌림판 안 글자 가운데로 
       ctx.font = `bold ${Math.max(12, Math.round(size * 0.035))}px Nanum Gothic, sans-serif`;
