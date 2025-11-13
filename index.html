@@ -22,13 +22,22 @@
       font-size: 1rem;
     }
     input[type=number] {
-  padding: 6px 8px;
-  width: 140px;
-  border: 1px solid #F7D6E5;
-  border-radius: 4px;
-  margin-right: 10px;
-  background: #fff;
+    padding: 10px 14px;
+    width: 140px;
+    border: 1px solid #F7D6E5;
+    border-radius: 4px;
+    margin-right: 10px;
+    background: #fff;
+    font-size: 1.05rem;          /* 글씨 약간 크게 */
+    outline: none;
     }
+
+    /* 클릭 시 핑크 하이라이트 */
+   input[type=number]:focus {
+   border-color: #DD71A9;
+   box-shadow: 0 0 0 4px rgba(221, 113, 169, .25);
+   }
+    
     button {
       padding: 8px 16px;
       background: #DD71A9;
