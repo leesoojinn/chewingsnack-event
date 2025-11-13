@@ -212,31 +212,34 @@ function playTick() {
   osc.stop(t0 + rel + 0.02);
 }
 
-  // 멈출 때 강한 나팔 빵빠레: "빠빠빰– 빠빠빠– 빠빠빰!"
-  function playChime(){                                            
+    // 멈출 때 브라스 빵빠레 (유튜브 축하 효과음 느낌)
+  function playChime(){                                             // [SOUND]
     ensureAudio();
 
     const base = audioCtx.currentTime + 0.02;
 
-    // 🎺 진짜 나팔 소리같이 만들기 (두 개의 톱니파 + 약간 디튠 + 밴드패스)
-    function brass(freq, delay, len = 0.45, peak = 0.9){
+    // 🎺 브라스(나팔) 한 음
+    function brass(freq, delay, len = 0.38, peak = 0.9){
       const o1 = audioCtx.createOscillator();
       const o2 = audioCtx.createOscillator();
       const f  = audioCtx.createBiquadFilter();
       const g  = audioCtx.createGain();
 
+      // 톱니파 2개로 나팔톤 만들기 + 살짝 디튠
       o1.type = "sawtooth";
       o2.type = "sawtooth";
 
       o1.frequency.setValueAtTime(freq, base + delay);
-      o2.frequency.setValueAtTime(freq * 1.012, base + delay); // 살짝 디튠 → 나팔 울림
+      o2.frequency.setValueAtTime(freq * 1.012, base + delay);
 
+      // 나팔 소리가 잘 들리는 대역을 강조
       f.type = "bandpass";
-      f.frequency.value = 1600;
+      f.frequency.value = 1700;
       f.Q.value = 4;
 
+      // 볼륨 엔벨로프 (빠르게 켰다가 점점 줄어듦)
       g.gain.setValueAtTime(0.0001, base + delay);
-      g.gain.exponentialRampToValueAtTime(peak, base + delay + 0.03);
+      g.gain.exponentialRampToValueAtTime(peak, base + delay + 0.04);
       g.gain.exponentialRampToValueAtTime(0.0001, base + delay + len);
 
       o1.connect(f);
@@ -250,26 +253,21 @@ function playTick() {
     }
 
     /* 
-       🎶 패턴 구조
-       빠빠빰 → (짧게/짧게/길게)
-       빠빠빠 → (중간톤 3번)
-       빠빠빰 → (처음보다 더 강하게)
+      패턴 느낌: 짧게 → 짧게 → 살짝 길게 → 살짝 쉬고 → 길게 마무리
+      전체적으로 "빠빠빰- 빠- 빠암!" 같은 구조
     */
 
-    // 첫 번째 빠빠빰 (힘차게 시작)
-    brass(784, 0.00, 0.30, 0.85);    // 빠
-    brass(784, 0.18, 0.28, 0.85);    // 빠
-    brass(988, 0.36, 0.45, 0.95);    // 빰 (강하게)
+    // 첫 구간: 시작 알리는 짧은 3음
+    brass(784,    0.00, 0.28, 0.85);   // G5
+    brass(880,    0.20, 0.28, 0.85);   // A5
+    brass(988,    0.40, 0.35, 0.90);   // B5
 
-    // 빠빠빠 (중간 긴장감)
-    brass(880, 0.90, 0.28, 0.85);    // 빠
-    brass(988, 1.15, 0.28, 0.85);    // 빠
-    brass(1046.5, 1.40, 0.35, 0.90); // 빠
+    // 살짝 쉬는 느낌 (공백)
 
-    // 마지막 빠빠빰 (가장 크게, 클라이맥스)
-    brass(784, 1.90, 0.30, 0.95);    // 빠
-    brass(880, 2.10, 0.32, 0.95);    // 빠
-    brass(1046.5, 2.32, 0.75, 1.00); // 빰! (최대 볼륨)
+    // 마지막 구간: 살짝 내려갔다가 크게 올라가는 마무리
+    brass(880,    0.90, 0.32, 0.90);   // A5
+    brass(988,    1.15, 0.38, 0.95);   // B5
+    brass(1174.7, 1.45, 0.80, 1.00);   // D6 길게 (마지막 강조)
   }
   
     function playCelebrationSound() {
