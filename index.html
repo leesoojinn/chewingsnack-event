@@ -204,7 +204,7 @@ function playTick() {
   const rel = 0.14;               // Release (0.06 → 0.14)
 
   gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(0.28, t0 + atk);      // 피크 볼륨
+  gain.gain.exponentialRampToValueAtTime(0.55, t0 + atk);      // 피크 볼륨
   gain.gain.exponentialRampToValueAtTime(0.0001, t0 + rel);    // 부드럽게 줄이기
 
   osc.connect(lpf).connect(gain).connect(audioCtx.destination);
@@ -232,6 +232,53 @@ function playTick() {
     note(783.99, t + 0.18);   // G5
     note(1046.5, t + 0.36);   // C6
   }
+    function playCelebrationSound() {
+    ensureAudio();
+
+    const t0 = audioCtx.currentTime;
+
+    // 🎺 빵빠레 (트럼펫 느낌)
+    function trumpet(freq, delay) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "square"; 
+      osc.frequency.setValueAtTime(freq, t0 + delay);
+
+      gain.gain.setValueAtTime(0.0001, t0 + delay);
+      gain.gain.exponentialRampToValueAtTime(0.4, t0 + delay + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + delay + 0.25);
+
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t0 + delay);
+      osc.stop(t0 + delay + 0.3);
+    }
+
+    trumpet(660, 0.00);  // E5
+    trumpet(880, 0.15);  // A5
+    trumpet(990, 0.30);  // B5
+
+    // 🙌 함성 효과 (노이즈 기반)
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // 점점 줄어드는 노이즈
+    }
+
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer;
+
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.3, t0 + 0.1);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.2);
+
+    noise.connect(noiseGain).connect(audioCtx.destination);
+    noise.start(t0 + 0.1);
+    noise.stop(t0 + 1.2);
+  }
+
   // 회전 중 '틱틱틱' 반복 (점점 빨라짐)
   function startTicking(){                                         // [SOUND]
     ensureAudio();
@@ -468,6 +515,7 @@ function playTick() {
       stopTicking(); // [SOUND] 회전 소리(틱틱틱) 정지
       playChime();   // [SOUND] 멈출 때 효과음
       fireConfetti(); // 🎉 컨페티(폭죽) 발사
+      playCelebrationSound(); // 🎉 빵빠레 + 함성 효과음
     }, 4000);
   }
 
