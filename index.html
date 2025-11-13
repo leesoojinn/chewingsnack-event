@@ -149,8 +149,6 @@
   <div id="history"><strong>히스토리:</strong><br/></div>
 </div>
   
-<video id="fanfareSound" src="1113.mp4" preload="auto" style="display:none"></video>
-  
 <script>
   const prizes = [
     "고구마칩 토핑용", "오트리얼칩", "바삭파칩",
@@ -523,15 +521,9 @@ function playTick() {
       historyDiv.appendChild(record);
 
       stopTicking(); // [SOUND] 회전 소리(틱틱틱) 정지
-      // playChime();   // [SOUND] 멈출 때 효과음
+      playChime();   // [SOUND] 멈출 때 효과음
       fireConfetti(); // 🎉 컨페티(폭죽) 발사
       // playCelebrationSound(); // 🎉 빵빠레 + 함성 효과음
-
-      const fanfare = document.getElementById('fanfareSound');
-      if (fanfare) {
-        fanfare.currentTime = 0;
-        fanfare.play().catch(() => {});
-      }
     }, 4000);
   }
 
