@@ -212,26 +212,56 @@ function playTick() {
   osc.stop(t0 + rel + 0.02);
 }
 
-  // 멈출 때 짧은 팡파레
+  // 멈출 때 영화관 나팔 빵빠레 "빠빠빠- 빠- 빠~~"
   function playChime(){                                             // [SOUND]
     ensureAudio();
-    function note(freq, t0, dur=0.18){
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t0);
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t0);
-      osc.stop(t0 + dur + 0.02);
+
+    const baseTime = audioCtx.currentTime + 0.02;
+
+    // 🎺 브라스(나팔) 한 음
+    function brassNote(freq, offset, dur = 0.35, peak = 0.7){
+      const osc1   = audioCtx.createOscillator();
+      const osc2   = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gain   = audioCtx.createGain();
+
+      // 밝은 나팔톤: 톱니파 2개(살짝 디튠)
+      osc1.type = 'sawtooth';
+      osc2.type = 'sawtooth';
+
+      // 주파수 & 살짝 어긋난 두 번째 음
+      osc1.frequency.setValueAtTime(freq, baseTime + offset);
+      osc2.frequency.setValueAtTime(freq * 1.01, baseTime + offset);
+
+      // 나팔 중심 대역 강조
+      filter.type = 'bandpass';
+      filter.frequency.value = 1800;
+      filter.Q.value = 4;
+
+      // 볼륨 엔벨로프 (빠르게 켜졌다가 서서히 줄어듦)
+      gain.gain.setValueAtTime(0.0001, baseTime + offset);
+      gain.gain.exponentialRampToValueAtTime(peak, baseTime + offset + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, baseTime + offset + dur);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain).connect(audioCtx.destination);
+
+      osc1.start(baseTime + offset);
+      osc2.start(baseTime + offset);
+      osc1.stop(baseTime + offset + dur + 0.05);
+      osc2.stop(baseTime + offset + dur + 0.05);
     }
-    const t = audioCtx.currentTime + 0.02;
-    note(523.25, t);          // C5
-    note(783.99, t + 0.18);   // G5
-    note(1046.5, t + 0.36);   // C6
+
+    // 🎵 빠빠빠- 빠- 빠~~ (리듬)
+    // 세 번 짧게 → 한 번 중간 → 한 번 길게
+    brassNote(784,    0.00, 0.22, 0.75);  // G5   빠
+    brassNote(784,    0.22, 0.22, 0.75);  // G5   빠
+    brassNote(784,    0.44, 0.28, 0.75);  // G5   빠-
+    brassNote(988,    0.80, 0.32, 0.80);  // B5   빠-
+    brassNote(1046.5, 1.18, 0.75, 0.85);  // C6   빠~~
   }
+  
     function playCelebrationSound() {
     ensureAudio();
 
@@ -515,7 +545,7 @@ function playTick() {
       stopTicking(); // [SOUND] 회전 소리(틱틱틱) 정지
       playChime();   // [SOUND] 멈출 때 효과음
       fireConfetti(); // 🎉 컨페티(폭죽) 발사
-      playCelebrationSound(); // 🎉 빵빠레 + 함성 효과음
+      // playCelebrationSound(); // 🎉 빵빠레 + 함성 효과음
     }, 4000);
   }
 
