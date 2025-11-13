@@ -239,7 +239,7 @@ function playChime(){                                             // [SOUND]
 
     gain.gain.setValueAtTime(0.0001, base + delay);
     gain.gain.exponentialRampToValueAtTime(peak, base + delay + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.0001, base + delay + 0.32);
+    gain.gain.exponentialRampToValueAtTime(0.0001, base + delay + 0.45);
 
     osc1.connect(filt);
     osc2.connect(filt);
@@ -286,7 +286,7 @@ function playChime(){                                             // [SOUND]
   // 🎶 패턴: 같은 음정의 "빠! 빰~~~~" (저음으로)
   const LOW_TRUMPET = 587.33; // D5 정도 (기존 C6보다 한 옥타브 가까이 낮음)
   brassHit(LOW_TRUMPET, 0.00, 0.7);              // 빠!
-  brassHit(LOW_TRUMPET, 0.15, 0.75);
+  brassHit(LOW_TRUMPET, 0.15, 0.7);
   brassSustain(LOW_TRUMPET, 0.20, 1.1, 0.85);    // 빰~~~~
 }
 
