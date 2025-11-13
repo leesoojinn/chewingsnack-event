@@ -212,109 +212,81 @@ function playTick() {
   osc.stop(t0 + rel + 0.02);
 }
 
-    // 멈출 때 브라스 빵빠레 (유튜브 축하 효과음 느낌)
-  function playChime(){                                             // [SOUND]
+    // 멈출 때 롱톤 트럼펫 빵빠레 "빠아아아아——뺌!!"
+  function playChime(){                                            
     ensureAudio();
 
-    const base = audioCtx.currentTime + 0.02;
+    const t0 = audioCtx.currentTime + 0.02;
 
-    // 🎺 브라스(나팔) 한 음
-    function brass(freq, delay, len = 0.38, peak = 0.9){
+    // 🎺 트럼펫톤 생성기 (sawtooth + bandpass + 엔벨로프)
+    function trumpetLong(freq, delay, sustain = 1.2, peak = 1.0){
       const o1 = audioCtx.createOscillator();
       const o2 = audioCtx.createOscillator();
       const f  = audioCtx.createBiquadFilter();
       const g  = audioCtx.createGain();
 
-      // 톱니파 2개로 나팔톤 만들기 + 살짝 디튠
+      // 트럼펫 울림 만들기
       o1.type = "sawtooth";
       o2.type = "sawtooth";
 
-      o1.frequency.setValueAtTime(freq, base + delay);
-      o2.frequency.setValueAtTime(freq * 1.012, base + delay);
+      // 약간 디튠 → 실제 금관 울림처럼
+      o1.frequency.setValueAtTime(freq, t0 + delay);
+      o2.frequency.setValueAtTime(freq * 1.015, t0 + delay);
 
-      // 나팔 소리가 잘 들리는 대역을 강조
+      // 나팔 특유의 중고역 강조
       f.type = "bandpass";
-      f.frequency.value = 1700;
+      f.frequency.value = 1600;
       f.Q.value = 4;
 
-      // 볼륨 엔벨로프 (빠르게 켰다가 점점 줄어듦)
-      g.gain.setValueAtTime(0.0001, base + delay);
-      g.gain.exponentialRampToValueAtTime(peak, base + delay + 0.04);
-      g.gain.exponentialRampToValueAtTime(0.0001, base + delay + len);
+      // 롱톤: 천천히 증가 → 오래 유지 → 천천히 감소
+      g.gain.setValueAtTime(0.0001, t0 + delay);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + delay + 0.25);
+      g.gain.setValueAtTime(peak, t0 + delay + sustain); 
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + delay + sustain + 0.4);
 
       o1.connect(f);
       o2.connect(f);
       f.connect(g).connect(audioCtx.destination);
 
-      o1.start(base + delay);
-      o2.start(base + delay);
-      o1.stop(base + delay + len + 0.05);
-      o2.stop(base + delay + len + 0.05);
+      o1.start(t0 + delay);
+      o2.start(t0 + delay);
+      o1.stop(t0 + delay + sustain + 0.5);
+      o2.stop(t0 + delay + sustain + 0.5);
     }
 
-    /* 
-      패턴 느낌: 짧게 → 짧게 → 살짝 길게 → 살짝 쉬고 → 길게 마무리
-      전체적으로 "빠빠빰- 빠- 빠암!" 같은 구조
-    */
+    // 🎺 마지막 “빰!!” 강한 짧은 트럼펫
+    function trumpetHit(freq, delay, peak = 1.0){
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      const f = audioCtx.createBiquadFilter();
 
-    // 첫 구간: 시작 알리는 짧은 3음
-    brass(784,    0.00, 0.28, 0.85);   // G5
-    brass(880,    0.20, 0.28, 0.85);   // A5
-    brass(988,    0.40, 0.35, 0.90);   // B5
+      o.type = "sawtooth";
 
-    // 살짝 쉬는 느낌 (공백)
+      o.frequency.setValueAtTime(freq, t0 + delay);
 
-    // 마지막 구간: 살짝 내려갔다가 크게 올라가는 마무리
-    brass(880,    0.90, 0.32, 0.90);   // A5
-    brass(988,    1.15, 0.38, 0.95);   // B5
-    brass(1174.7, 1.45, 0.80, 1.00);   // D6 길게 (마지막 강조)
-  }
-  
-    function playCelebrationSound() {
-    ensureAudio();
+      f.type = "bandpass";
+      f.frequency.value = 1700;
+      f.Q.value = 5;
 
-    const t0 = audioCtx.currentTime;
+      g.gain.setValueAtTime(0.0001, t0 + delay);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + delay + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + delay + 0.25);
 
-    // 🎺 빵빠레 (트럼펫 느낌)
-    function trumpet(freq, delay) {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      o.connect(f);
+      f.connect(g).connect(audioCtx.destination);
 
-      osc.type = "square"; 
-      osc.frequency.setValueAtTime(freq, t0 + delay);
-
-      gain.gain.setValueAtTime(0.0001, t0 + delay);
-      gain.gain.exponentialRampToValueAtTime(0.4, t0 + delay + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + delay + 0.25);
-
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t0 + delay);
-      osc.stop(t0 + delay + 0.3);
+      o.start(t0 + delay);
+      o.stop(t0 + delay + 0.3);
     }
 
-    trumpet(660, 0.00);  // E5
-    trumpet(880, 0.15);  // A5
-    trumpet(990, 0.30);  // B5
+    /* ===========================
+       🎶 전체 멜로디 구조
+       빠————— (길게 유지)
+       뺌!!! (강하게 마무리)
+       =========================== */
 
-    // 🙌 함성 효과 (노이즈 기반)
-    const bufferSize = 2 * audioCtx.sampleRate;
-    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-    const output = noiseBuffer.getChannelData(0);
-
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize); // 점점 줄어드는 노이즈
-    }
-
-    const noise = audioCtx.createBufferSource();
-    noise.buffer = noiseBuffer;
-
-    const noiseGain = audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(0.3, t0 + 0.1);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, t0 + 1.2);
-
-    noise.connect(noiseGain).connect(audioCtx.destination);
-    noise.start(t0 + 0.1);
-    noise.stop(t0 + 1.2);
+    trumpetLong(784, 0.00, 1.25, 1.0);  // G5 길게 "빠——————"
+    trumpetHit (1046.5, 1.30, 1.1);     // C6 "뺌!!"
   }
 
   // 회전 중 '틱틱틱' 반복 (점점 빨라짐)
